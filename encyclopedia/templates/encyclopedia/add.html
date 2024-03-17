@@ -1,0 +1,40 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Add an Entry
+{% endblock %}
+
+{% block body %}
+    <h1 style="text-align: center;">Add an entry!</h1>
+
+    <br>
+    <br>
+
+    <div class="container">    
+        <form action="{% url 'wiki:add' %}" method="post">
+            {% csrf_token %}
+
+            {{ form }}
+           <!-- <div class="mb-3">
+                <p style="text-align: center;">Add entry title:</p>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="entry_title" placeholder="Title" type="text">
+            </div>
+            
+            <br>
+
+            <div class="form-outline">
+                <p style="text-align: center;">Add entry text:</p>
+                <textarea class="form-control" rows="4" name="entry_text" placeholder="Entry text"></textarea>
+            </div>
+
+            <br>
+            <br>
+            -->
+            <div  style="margin-left:12%">
+            <button class="btn btn-primary" type="submit">Add</button>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock %}
