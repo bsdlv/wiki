@@ -1,11 +1,8 @@
-import markdown2
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from markdown2 import Markdown
 from random import choice
 from . import util
-
-
 
 
 def index(request):
@@ -27,7 +24,7 @@ def add(request):
             else:
                 util.save_entry(title, content)
                 messages.success(request, "Entry added!")
-                markdowner = markdown2.Markdown()
+                markdowner = Markdown()
                 return render(request, "encyclopedia/entry.html", {
                     "title": title,
                     "content": markdowner.convert(content)
@@ -39,7 +36,7 @@ def add(request):
 
 def entry(request, q):
     content = util.get_entry(q)
-    content = markdown2.Markdown(content)
+    content = Markdown(content)
     return render(request, "encyclopedia/entry.html", {
         "title": q,
         "content": content
@@ -56,7 +53,7 @@ def search(request):
         
         try:
             content = util.get_entry(q)
-            markdowner = markdown2.Markdown()
+            markdowner = Markdown()
             html = markdowner.convert(content)
 
             if html:
@@ -86,7 +83,7 @@ def wiki(request, q):
     content = util.get_entry(q)
     
     if content:
-        markdowner = markdown2.Markdown()
+        markdowner = Markdown()
         content = markdowner.convert(content)
       
         return render(request, "encyclopedia/q.html", {
