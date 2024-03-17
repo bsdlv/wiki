@@ -1,11 +1,19 @@
 {% extends "encyclopedia/layout.html" %}
 
 {% block title %}
-    Search: {{ title|safe }}
+    Search
 {% endblock %}
 
 {% block body %}
-<h1>Did you mean: </h1>
 
+<h1>Did you mean:</h1>
+
+<ul>
+{% for match in matches %}
+
+<li><a href="{% url 'wiki:wiki' q=match %}">{{ match }}</a></li>
+
+{% endfor %}
+</ul>
 
 {% endblock %}

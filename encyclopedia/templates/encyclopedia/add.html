@@ -7,34 +7,14 @@
 {% block body %}
     <h1 style="text-align: center;">Add an entry!</h1>
 
-    <br>
-    <br>
-
-    <div class="container">    
-        <form action="{% url 'wiki:add' %}" method="post">
+        <form action="{% url 'wiki:add' %}" method="POST">
             {% csrf_token %}
-
-            {{ form }}
-           <!-- <div class="mb-3">
-                <p style="text-align: center;">Add entry title:</p>
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="entry_title" placeholder="Title" type="text">
-            </div>
-            
-            <br>
-
-            <div class="form-outline">
-                <p style="text-align: center;">Add entry text:</p>
-                <textarea class="form-control" rows="4" name="entry_text" placeholder="Entry text"></textarea>
-            </div>
-
-            <br>
-            <br>
-            -->
-            <div  style="margin-left:12%">
-            <button class="btn btn-primary" type="submit">Add</button>
-            </div>
-
+            <label>Entry name:</label>
+            <input type="text" name="title" placeholder="Entry title"> 
+            <label>Entry content:</label>
+            <textarea name="content"></textarea>
+            <button type="submit">Submit</button>
         </form>
-    </div>
+
 
 {% endblock %}

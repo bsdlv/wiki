@@ -1,16 +1,11 @@
-from django.http import HttpResponseRedirect
+import markdown2
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django import forms
-from django.urls import reverse
-import markdown2
 from random import choice
-
 from . import util
 
-class NewEntryForm(forms.Form):
-    new_title = forms.CharField(label="New Title      ")
-    new_entry = forms.CharField(label="New Entry")
+
 
 
 def index(request):
@@ -21,29 +16,34 @@ def index(request):
 
 def add(request): 
     if request.method == "POST":
-        form = NewEntryForm(request.POST)
-
-        if form.is_valid():
-            entry_title = form.cleaned_data["new_title"]
-            entry_text = form.cleaned_data["new_entry"]
+            title = request.POST["title"]
+            content = request.POST["content"]
             
-            if not util.get_entry(entry_title):
-                util.save_entry(entry_title, entry_text)
-                messages.success(request, "Entry added!")
-
-                return HttpResponseRedirect(reverse("wiki:index"))
+            if util.get_entry(title):
+                return render(request, "encyclopedia/error.html", {
+                    "message": "Entry already in database"
+                })
             
             else:
-                raise forms.ValidationError("Entry already in encyclopedia")
+                util.save_entry(title, content)
+                messages.success(request, "Entry added!")
+                markdowner = markdown2.Markdown()
+                return render(request, "encyclopedia/entry.html", {
+                    "title": title,
+                    "content": markdowner.convert(content)
+                })
         
     else:
-        return render(request, "encyclopedia/add.html", {
-        "form": NewEntryForm()
+        return render(request, "encyclopedia/add.html")
+
+
+def entry(request, q):
+    content = util.get_entry(q)
+    content = markdown2.Markdown(content)
+    return render(request, "encyclopedia/entry.html", {
+        "title": q,
+        "content": content
     })
-
-
-def new_page(request):
-    ...
 
 
 def random_page(request):
@@ -52,35 +52,43 @@ def random_page(request):
 
 def search(request):
     if request.method == "POST":
-        q = request.POST["query"]
-        if q:
-            content = markdown2.markdown(util.get_entry(q))
-            
-            if content:
-                return render(request, "encyclopedia/q.html", {
-                "title": q, 
-                "content": content
-            })
-
-            else:
-                return render(request, "encyclopedia/error.html", {
-                "message": "Entry not found"
-            })
-
-        else:
-            return render(request, "encyclopedia/error.html", {
-            "message": "Must enter a query"
-        })
+        q = request.POST["q"]
         
-    else:
-       return render(request, "encyclopedia/search.html" )
+        try:
+            content = util.get_entry(q)
+            markdowner = markdown2.Markdown()
+            html = markdowner.convert(content)
+
+            if html:
+                return render(request, "encyclopedia/entry.html", {
+                "title": q,
+                "content": html 
+                })
+            
+        except TypeError:
+            entries = util.list_entries()
+            matches = []
+            for entry in entries:
+                if q in entry:
+                    matches.append(entry)
+            
+            if not matches:
+                return render(request, "encyclopedia/error.html", {
+                    "message": "No matches found"
+                })
+            
+            return render(request, "encyclopedia/search.html", {
+            "matches": matches
+            })
 
 
 def wiki(request, q):
     content = util.get_entry(q)
     
     if content:
-        content = markdown2.markdown(content)
+        markdowner = markdown2.Markdown()
+        content = markdowner.convert(content)
+      
         return render(request, "encyclopedia/q.html", {
            "title": q, 
            "content": content
@@ -96,4 +104,6 @@ def error(request, message):
     return render(request, "encyclopedia/error.html", {
         "message": message
     })
+
+
 
