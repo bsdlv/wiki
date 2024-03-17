@@ -43,8 +43,16 @@ def entry(request, q):
     })
 
 
-def random_page(request):
-    ...
+def random(request):
+    entries = util.list_entries()
+    entry = choice(entries)
+    content = util.get_entry(entry)
+    markdowner = Markdown()
+
+    return render(request, "encyclopedia/entry.html", {
+        "title": entry,
+        "content": markdowner.convert(content)
+    })
 
 
 def search(request):
