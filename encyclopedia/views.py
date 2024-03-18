@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib import messages
 from markdown2 import Markdown
 from random import choice
@@ -36,16 +36,15 @@ def add(request):
 
 def entry(request, q):
     content = util.get_entry(q)
-    content = Markdown(content)
+    markdowner = Markdown()
     return render(request, "encyclopedia/entry.html", {
         "title": q,
-        "content": content
+        "content": markdowner.convert(content)
     })
 
 
 def random(request):
-    entries = util.list_entries()
-    entry = choice(entries)
+    entry = choice(util.list_entries())
     content = util.get_entry(entry)
     markdowner = Markdown()
 
@@ -92,11 +91,10 @@ def wiki(request, q):
     
     if content:
         markdowner = Markdown()
-        content = markdowner.convert(content)
       
         return render(request, "encyclopedia/q.html", {
            "title": q, 
-           "content": content
+           "content": markdowner.convert(content)
         })
 
     else:
@@ -110,5 +108,28 @@ def error(request, message):
         "message": message
     })
 
+def edit(request):
+    if request.method == "POST":
+        title = request.POST["title"]
+        content = util.get_entry(title)
 
+        return render(request, "encyclopedia/edit.html", {
+            "title": title,
+            "content": content
+        })
+        
+def save_edit(request):
+    if request.method == "POST":
+        title = request.POST["title"]
+        edit = request.POST["edit"]
+
+        util.save_entry(title, edit)
+        markdowner = Markdown()
+
+        return render(request, "encyclopedia/entry.html", {
+            "title": title,
+            "content": markdowner.convert(edit)
+        })
+
+   
 
